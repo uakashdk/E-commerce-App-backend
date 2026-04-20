@@ -9,8 +9,7 @@ import {
 } from "../controller/ProductController.js";
 
 import { createProductValidation, updateProductValidation } from "../Validation/ProductValidation.js";
-import { validateRequest } from "../middleware/validateRequest.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import validateRequest from "../middleware/validateRequest.js";
 
 const router = express.Router();
 

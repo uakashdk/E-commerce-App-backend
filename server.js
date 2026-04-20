@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { Connection } from "./config/Db.js";
 import AuthRoutes from "./routes/AuthControllerRoutes.js";
+import CategoryRoutes from "./routes/CategoryControllerRoutes.js";
+import ProductRoutes from "./routes/ProductControllerRoutes.js";
 
 const app = express();
 
@@ -15,6 +17,8 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 // Routes AFTER middleware
 app.use("/api/auth", AuthRoutes);
+app.use("/api/category", CategoryRoutes);
+app.use("/api/product", ProductRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

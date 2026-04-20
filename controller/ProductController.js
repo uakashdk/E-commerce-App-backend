@@ -1,5 +1,4 @@
-import { Product } from "../models/Product.js";
-import { productValidation } from "../validators/productValidator.js";
+import { Product } from "../modals/Product.js";
 
 // ===============================
 // CREATE PRODUCT
@@ -7,7 +6,6 @@ import { productValidation } from "../validators/productValidator.js";
 export const createProduct = async (req, res) => {
   try {
     // 1. Joi validation
-    const { error } = productValidation.validate(req.body);
 
     if (error) {
       return res.status(400).json({
@@ -56,7 +54,7 @@ export const createProduct = async (req, res) => {
 // ===============================
 // GET ALL PRODUCTS
 // ===============================
-export const getProducts = async (req, res) => {
+export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().populate("category", "name");
 
