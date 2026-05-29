@@ -7,13 +7,6 @@ export const createProduct = async (req, res) => {
   try {
     // 1. Joi validation
 
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message,
-      });
-    }
-
     // 2. Check image
     if (!req.file) {
       return res.status(400).json({
@@ -56,20 +49,43 @@ export const createProduct = async (req, res) => {
 // ===============================
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category", "name");
+
+    // page and limit
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 15;
+
+    // skip calculation
+    const skip = (page - 1) * limit;
+
+    // total products
+    const totalProducts = await Product.countDocuments();
+
+    // paginated products
+    const products = await Product.find()
+      .populate("category", "name")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json({
       success: true,
       message: "Products retrieved successfully",
+
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / limit),
+      totalProducts,
+
       products,
     });
 
   } catch (error) {
+
     return res.status(500).json({
       success: false,
       message: "Server error",
       error: error.message,
     });
+
   }
 };
 

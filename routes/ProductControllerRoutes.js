@@ -3,20 +3,32 @@ import express from "express";
 import {
   createProduct,
   getAllProducts,
-    getProductById,
-    updateProduct,
-    deleteProduct,
+  getProductById,
+  updateProduct,
+  deleteProduct,
 } from "../controller/ProductController.js";
 
-import { createProductValidation, updateProductValidation } from "../Validation/ProductValidation.js";
+import {
+  createProductValidation,
+  updateProductValidation,
+} from "../Validation/ProductValidation.js";
+
 import validateRequest from "../middleware/validateRequest.js";
+
+// IMPORTANT
+import upload from "../middleware/multer.js";
 
 const router = express.Router();
 
 // ===============================
 // CREATE PRODUCT
 // ===============================
-router.post("/create-product",  validateRequest(createProductValidation), createProduct);
+router.post(
+  "/create-product",
+  upload.single("image"),
+  validateRequest(createProductValidation),
+  createProduct
+);
 
 // ===============================
 // GET ALL PRODUCTS
@@ -31,11 +43,16 @@ router.get("/product/:id", getProductById);
 // ===============================
 // UPDATE PRODUCT
 // ===============================
-router.put("/Update-product/:id",  validateRequest(updateProductValidation), updateProduct);
+router.put(
+  "/Update-product/:id",
+  upload.single("image"),
+  validateRequest(updateProductValidation),
+  updateProduct
+);
 
 // ===============================
 // DELETE PRODUCT
 // ===============================
-router.delete("/Delete-product/:id",  deleteProduct);
+router.delete("/Delete-product/:id", deleteProduct);
 
 export default router;
