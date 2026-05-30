@@ -48,45 +48,198 @@ export const createProduct = async (req, res) => {
 // GET ALL PRODUCTS
 // ===============================
 export const getAllProducts = async (req, res) => {
+
   try {
 
-    // page and limit
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 15;
+    // =========================
+    // QUERY PARAMS
+    // =========================
+    const page =
+      parseInt(req.query.page) || 1;
 
-    // skip calculation
+    const limit =
+      parseInt(req.query.limit) || 15;
+
+    const search =
+      req.query.search || "";
+
+    const category =
+      req.query.category || "";
+
+    const priceRange =
+      req.query.priceRange || "";
+
+    const sort =
+      req.query.sort || "latest";
+
+    // =========================
+    // PAGINATION
+    // =========================
     const skip = (page - 1) * limit;
 
-    // total products
-    const totalProducts = await Product.countDocuments();
+    // =========================
+    // FILTER OBJECT
+    // =========================
+    const filter = {};
 
-    // paginated products
-    const products = await Product.find()
-      .populate("category", "name")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    // =========================
+    // SEARCH FILTER
+    // =========================
+    if (search) {
 
+      filter.name = {
+        $regex: search,
+        $options: "i",
+      };
+
+    }
+
+    // =========================
+    // CATEGORY FILTER
+    // =========================
+    if (category) {
+
+      filter.category = category;
+
+    }
+
+    // =========================
+    // PRICE FILTER
+    // =========================
+    if (priceRange) {
+
+      if (priceRange === "0-1000") {
+
+        filter.price = {
+          $gte: 0,
+          $lte: 1000,
+        };
+
+      }
+
+      else if (
+        priceRange === "1000-5000"
+      ) {
+
+        filter.price = {
+          $gte: 1000,
+          $lte: 5000,
+        };
+
+      }
+
+      else if (
+        priceRange === "5000-20000"
+      ) {
+
+        filter.price = {
+          $gte: 5000,
+          $lte: 20000,
+        };
+
+      }
+
+      else if (
+        priceRange === "20000-above"
+      ) {
+
+        filter.price = {
+          $gte: 20000,
+        };
+
+      }
+
+    }
+
+    // =========================
+    // SORTING
+    // =========================
+    let sortOption = {};
+
+    switch (sort) {
+
+      case "price_asc":
+
+        sortOption.price = 1;
+        break;
+
+      case "price_desc":
+
+        sortOption.price = -1;
+        break;
+
+      case "oldest":
+
+        sortOption.createdAt = 1;
+        break;
+
+      default:
+
+        sortOption.createdAt = -1;
+
+    }
+
+    // =========================
+    // TOTAL PRODUCTS
+    // =========================
+    const totalProducts =
+      await Product.countDocuments(
+        filter
+      );
+
+    // =========================
+    // GET PRODUCTS
+    // =========================
+    const products =
+      await Product.find(filter)
+
+        .populate(
+          "category",
+          "name"
+        )
+
+        .sort(sortOption)
+
+        .skip(skip)
+
+        .limit(limit);
+
+    // =========================
+    // RESPONSE
+    // =========================
     return res.status(200).json({
+
       success: true,
-      message: "Products retrieved successfully",
+
+      message:
+        "Products retrieved successfully",
 
       currentPage: page,
-      totalPages: Math.ceil(totalProducts / limit),
+
+      totalPages: Math.ceil(
+        totalProducts / limit
+      ),
+
       totalProducts,
 
       products,
+
     });
 
   } catch (error) {
 
     return res.status(500).json({
+
       success: false,
+
       message: "Server error",
+
       error: error.message,
+
     });
 
   }
+
 };
 
 // ===============================

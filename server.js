@@ -5,6 +5,7 @@ import { Connection } from "./config/Db.js";
 import AuthRoutes from "./routes/AuthControllerRoutes.js";
 import CategoryRoutes from "./routes/CategoryControllerRoutes.js";
 import ProductRoutes from "./routes/ProductControllerRoutes.js";
+import AdmRoutes from "./routes/AdmControllerRoutes.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", AuthRoutes);
 app.use("/api/category", CategoryRoutes);
 app.use("/api/product", ProductRoutes);
+app.use("/api/admin", AdmRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
