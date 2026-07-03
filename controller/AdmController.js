@@ -81,64 +81,52 @@ export const adminDashboard = async (req, res) => {
 // =========================
 // UPDATE PROFILE
 // =========================
-export const UpdateProfile = async (
-    req,
-    res
-) => {
+export const UpdateProfile = async (req, res) => {
+  try {
+    // Safe destructuring
+    const { name, password } = req.body || {};
 
-    try {
+    // Find user
+    const user = await User.findById(req.user._id);
 
-        const { name, password } = req.body;
-
-        // FIND USER
-        const user =
-            await User.findById(req.user._id);
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found",
-            });
-        }
-
-        // UPDATE NAME
-        if (name) {
-            user.name = name;
-        }
-
-        // UPDATE PASSWORD
-        if (password) {
-            user.password = password;
-        }
-
-        // UPDATE IMAGE
-        if (req.file) {
-
-            user.imageUrl =
-                `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-        }
-
-        // SAVE USER
-        await user.save();
-
-        return res.status(200).json({
-            success: true,
-            message: "Profile updated successfully",
-            user,
-        });
-
-    } catch (error) {
-
-        console.log("error=====>", error);
-
-        return res.status(500).json({
-            success: false,
-            message:
-                "Server Error while updating profile",
-            error: error.message,
-        });
-
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
+
+    // Update name
+    if (name) {
+      user.name = name;
+    }
+
+    // Update password (Hash it before saving)
+    if (password) {
+      user.password = await hashPassword(password);
+    }
+
+    // Update profile image
+    if (req.file) {
+      user.imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error while updating profile",
+      error: error.message,
+    });
+  }
 };
 
 
@@ -156,7 +144,7 @@ export const getUser = async (
     try {
 
         console.log("SECRET:", process.env.JWT_SECRET);
-        console.log("TOKEN:", token);
+        
 
         // =========================
         // GET USER FROM TOKEN
